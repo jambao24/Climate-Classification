@@ -11,57 +11,57 @@ public class cherrychips666ClimateClassif {
     public static int months = 12;
     public static String[] monthsList = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-	public static void main(String[] args) throws FileNotFoundException {
-		Scanner console = new Scanner(System.in);
-		String a = "temperature";
-		String b = "precipitation";
-		double[] monthTemps = inputData(console, a);
-		double[] monthPrecip = inputData(console, b);
+    public static void main(String[] args) throws FileNotFoundException {
+	Scanner console = new Scanner(System.in);
+	String a = "temperature";
+	String b = "precipitation";
+	double[] monthTemps = inputData(console, a);
+	double[] monthPrecip = inputData(console, b);
 	
-		double precip = 0.0;
-		for (int i = 0; i < months; i++) {
-			precip += monthPrecip[i];
-		}
+	double precip = 0.0;
+	for (int i = 0; i < months; i++) {
+	    precip += monthPrecip[i];
+	}
       
-		double HBioTemp = findBioTemp(monthTemps);
+	double HBioTemp = findBioTemp(monthTemps);
       
         System.out.println("Total Annual Precipitation: " + precip);
         System.out.println("Holdridge Biotemperature: " + HBioTemp);
-		String finalString = climateClasscherrychips666(monthTemps, monthPrecip, precip, HBioTemp);
-
-		System.out.println("Average Mean Monthly Temperatures:  " + Arrays.toString(monthTemps));
-		System.out.println("Average Mean Monthly Precipitation:  " + Arrays.toString(monthPrecip));
-		System.out.println("cherrychips666 Climate Classification:  " + finalString);
-	}	
+	String finalString = climateClasscherrychips666(monthTemps, monthPrecip, precip, HBioTemp);
+	
+	System.out.println("Average Mean Monthly Temperatures:  " + Arrays.toString(monthTemps));
+	System.out.println("Average Mean Monthly Precipitation:  " + Arrays.toString(monthPrecip));
+	System.out.println("cherrychips666 Climate Classification:  " + finalString);
+    }	
 
 
    // construct a double array of entered double values from the scanner input
-	public static double[] inputData(Scanner console, String c) {
-		System.out.println("Please enter in the monthly data for " + c + ". ");
-		double[] newArray = new double[months];
-
-		for (int i = 0; i < months; i++) {
-			System.out.print(monthsList[i] + ": ");
-			newArray[i] = console.nextDouble();
-		}
-      System.out.println();
-      return newArray;
+    public static double[] inputData(Scanner console, String c) {
+	System.out.println("Please enter in the monthly data for " + c + ". ");
+	double[] newArray = new double[months];
+        
+	for (int i = 0; i < months; i++) {
+	    System.out.print(monthsList[i] + ": ");
+	    newArray[i] = console.nextDouble();
 	}
+        System.out.println();
+        return newArray;
+    }
 
     // find the Holdridge average biotemperature 
-	public static double findBioTemp(double[] monthTemps) {
-		double[] bioTemps = new double [months];
-      for (int k = 0; k < months; k++) {
-        bioTemps[k] = monthTemps[k] < 0.0
-            ? 0.0
-            : monthTemps[k];
-      }
-      double sumTemps = 0.0;
-		for (int l = 0; l < months; l++) {
-			sumTemps += bioTemps[l];
-		}
-		return sumTemps/months;
+    public static double findBioTemp(double[] monthTemps) {
+	double[] bioTemps = new double [months];
+        for (int k = 0; k < months; k++) {
+            bioTemps[k] = monthTemps[k] < 0.0
+                ? 0.0
+                : monthTemps[k];
+        }
+        double sumTemps = 0.0;
+        for (int l = 0; l < months; l++) {
+	    sumTemps += bioTemps[l];
 	}
+	    return sumTemps/months;
+    }
 
     // find the evapotranspiration threshold
     public static double findEvapo(double HBioTemp) {
@@ -239,19 +239,19 @@ public class cherrychips666ClimateClassif {
     }
 
 
-   // return a climate classification category based on the average monthly temperatures,
-   // average monthly precipitation, and Holdridge average biotemperature for the whole year
-	public static String climateClasscherrychips666(double[] monthTemps, double[] monthPrecip, double precip, double HBioTemp) {
+    // return a climate classification category based on the average monthly temperatures,
+    // average monthly precipitation, and Holdridge average biotemperature for the whole year
+    public static String climateClasscherrychips666(double[] monthTemps, double[] monthPrecip, double precip, double HBioTemp) {
         String classif = "";
         
-        // Polar
-		if (HBioTemp <= 1.5) 
-			classif = "7";
+            // Polar
+	    if (HBioTemp <= 1.5) 
+		classif = "7";
         // Subpolar + Boreal + Cool Temperate
         else if (HBioTemp <= 12.0) {
             double tSeasonality = tempCont(monthTemps);
             // Subpolar
-			if (HBioTemp <= 3.0) {
+            if (HBioTemp <= 3.0) {
                 if (tSeasonality > 650)
                     classif = "6c";
                 else if (tSeasonality > 300)
