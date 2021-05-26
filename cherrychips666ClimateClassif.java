@@ -12,38 +12,38 @@ public class cherrychips666ClimateClassif {
     public static String[] monthsList = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     public static void main(String[] args) throws FileNotFoundException {
-	Scanner console = new Scanner(System.in);
-	String a = "temperature";
-	String b = "precipitation";
-	double[] monthTemps = inputData(console, a);
-	double[] monthPrecip = inputData(console, b);
+	    Scanner console = new Scanner(System.in);
+	    String a = "temperature";
+	    String b = "precipitation";
+	    double[] monthTemps = inputData(console, a);
+	    double[] monthPrecip = inputData(console, b);
 	
-	double precip = 0.0;
-	for (int i = 0; i < months; i++) {
-	    precip += monthPrecip[i];
-	}
+	    double precip = 0.0;
+	    for (int i = 0; i < months; i++) {
+	        precip += monthPrecip[i];
+	    }
       
-	double HBioTemp = findBioTemp(monthTemps);
+	    double HBioTemp = findBioTemp(monthTemps);
       
         System.out.println("Total Annual Precipitation: " + precip);
         System.out.println("Holdridge Biotemperature: " + HBioTemp);
-	String finalString = climateClasscherrychips666(monthTemps, monthPrecip, precip, HBioTemp);
+	    String finalString = climateClasscherrychips666(monthTemps, monthPrecip, precip, HBioTemp);
 	
-	System.out.println("Average Mean Monthly Temperatures:  " + Arrays.toString(monthTemps));
-	System.out.println("Average Mean Monthly Precipitation:  " + Arrays.toString(monthPrecip));
-	System.out.println("cherrychips666 Climate Classification:  " + finalString);
+	    System.out.println("Average Mean Monthly Temperatures:  " + Arrays.toString(monthTemps));
+	    System.out.println("Average Mean Monthly Precipitation:  " + Arrays.toString(monthPrecip));
+	    System.out.println("cherrychips666 Climate Classification:  " + finalString);
     }	
 
 
    // construct a double array of entered double values from the scanner input
     public static double[] inputData(Scanner console, String c) {
-	System.out.println("Please enter in the monthly data for " + c + ". ");
-	double[] newArray = new double[months];
+	    System.out.println("Please enter in the monthly data for " + c + ". ");
+	    double[] newArray = new double[months];
         
-	for (int i = 0; i < months; i++) {
-	    System.out.print(monthsList[i] + ": ");
-	    newArray[i] = console.nextDouble();
-	}
+	    for (int i = 0; i < months; i++) {
+	        System.out.print(monthsList[i] + ": ");
+	        newArray[i] = console.nextDouble();
+	    }
         System.out.println();
         return newArray;
     }
@@ -58,8 +58,8 @@ public class cherrychips666ClimateClassif {
         }
         double sumTemps = 0.0;
         for (int l = 0; l < months; l++) {
-	    sumTemps += bioTemps[l];
-	}
+	        sumTemps += bioTemps[l];
+	    }   
 	    return sumTemps/months;
     }
 
