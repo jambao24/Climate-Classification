@@ -1,10 +1,10 @@
 import java.io.*;
 import java.util.*; 
-//import static java.util.Comparator.comparing; // used for coldest and hottest?
 
 
-// http://www.city-data.com/forum/weather/3273176-climate-classifications-system-i-made.html
-
+// Source: http://www.city-data.com/forum/weather/3273176-climate-classifications-system-i-made.html
+// this version uses 0.5 as the summer wetness and winter wetness thresholds for "Mediterranean/dry-summer" and "monsoon/dry-winter"
+// thresholds for the Subtropical and Warm Temperate zones. 
 
 
 public class cherrychips666ClimateClassif {
@@ -12,6 +12,8 @@ public class cherrychips666ClimateClassif {
     public static String[] monthsList = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     public static void main(String[] args) throws FileNotFoundException {
+        System.out.println("Welcome! Please input the average daily temperature (°C) and precipitation (mm) for each month of a climate station.");
+
 	    Scanner console = new Scanner(System.in);
 	    String a = "temperature";
 	    String b = "precipitation";
@@ -24,9 +26,12 @@ public class cherrychips666ClimateClassif {
 	    }
       
 	    double HBioTemp = findBioTemp(monthTemps);
+        double thresh1 = findEvapo(HBioTemp);
+        double thresh2 = getIndex(thresh1, precip);
       
-        System.out.println("Total Annual Precipitation: " + precip);
-        System.out.println("Holdridge Biotemperature: " + HBioTemp);
+        System.out.println("Total Annual Precipitation: " + precip + " mm");
+        System.out.println("Holdridge Biotemperature: " + HBioTemp + " °C");
+        System.out.println("Calculated Evapotranspiration Rate: " + thresh2 + " mm");
 	    String finalString = climateClasscherrychips666(monthTemps, monthPrecip, precip, HBioTemp);
 	
 	    System.out.println("Average Mean Monthly Temperatures:  " + Arrays.toString(monthTemps));
@@ -177,7 +182,7 @@ public class cherrychips666ClimateClassif {
         return retvals;
     }
 
-    // find the stdev of a series
+    // find the stdev (sample) of a series
     // in practice the series will always be an array of length 12
     public static double getStdev(double[] arr) {
         double mean = 0.0;
@@ -244,9 +249,9 @@ public class cherrychips666ClimateClassif {
     public static String climateClasscherrychips666(double[] monthTemps, double[] monthPrecip, double precip, double HBioTemp) {
         String classif = "";
         
-            // Polar
+        // Polar
 	    if (HBioTemp <= 1.5) 
-		classif = "7";
+			classif = "7";
         // Subpolar + Boreal + Cool Temperate
         else if (HBioTemp <= 12.0) {
             double tSeasonality = tempCont(monthTemps);

@@ -2,11 +2,17 @@ import java.io.*;
 import java.util.*;
 
 
+// Source: https://www.reddit.com/r/MapPorn/comments/1yxce9/climate_zones_of_the_lower_48_5042x3195/cfotfzg/
+// and probably https://prism.oregonstate.edu/documents/Daly2008_PhysiographicMapping_IntJnlClim.pdf
+
+
 public class HolridgeClimateClassif {
 	public static int months = 12;
-   public static String[] monthsList = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    public static String[] monthsList = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 	public static void main(String[] args) throws FileNotFoundException {
+		System.out.println("Welcome! Please input the average daily temperature (°C) and precipitation (mm) for each month of a climate station.");
+
 		Scanner console = new Scanner(System.in);
 		String a = "temperature";
 		String b = "precipitation";
@@ -20,8 +26,8 @@ public class HolridgeClimateClassif {
       
 		double WarmTemp = findWarmHoldridgeTemp(monthTemps);
       
-      System.out.println("Total Annual Precipitation: " + precip);
-      System.out.println("Holdridge Warm-Season Biotemperature: " + WarmTemp);
+        System.out.println("Total Annual Precipitation: " + precip + " mm");
+        System.out.println("Holdridge Warm-Season Biotemperature: " + WarmTemp + " °C");
 		String finalString = climateClassHoldridge(monthTemps, precip, WarmTemp);
 
 		System.out.println("Average Mean Monthly Temperatures:  " + Arrays.toString(monthTemps));
@@ -39,8 +45,8 @@ public class HolridgeClimateClassif {
 			System.out.print(monthsList[i] + ": ");
 			newArray[i] = console.nextDouble();
 		}
-      System.out.println();
-      return newArray;
+        System.out.println();
+        return newArray;
 	}
 
 
@@ -61,11 +67,9 @@ public class HolridgeClimateClassif {
 		}
 	
 		if (maxTemp <= 10.0) {
-			if (maxTemp - minTemp > 3.0) {
-				thermal = "alpine";
-			} else {
-				thermal = "paramo";
-			}
+			thermal = (maxTemp - minTemp > 3.0) 
+				? "alpine"
+				: "paramo";
 		} else if (minTemp < 0.0) {
 			if (WarmTemp < 12.0) {
 				thermal = "boreal";
@@ -108,11 +112,9 @@ public class HolridgeClimateClassif {
 			} else if (precip/annualPET >= 0.5) {
 				moisture = "subhumid";
 			} else if (precip/annualPET >= 0.25) {
-				if (thermal == "cool maritime" || thermal == "boreal") {
-					moisture = "dry";
-				} else {
-					moisture = "semiarid";
-				}
+				moisture = (WarmTemp < 12.0)
+					? "dry"
+					: "semiarid";
 			} else {
 				moisture = "arid";
 			}
