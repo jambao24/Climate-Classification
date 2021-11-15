@@ -27,10 +27,11 @@ public class MyClimateClassif {
         aveTemp = aveTemp/months;
       
 		// check which of July/January is warmer (true = Jul, false = Jan)
-        boolean northHemisphere = (monthTemps[6] - monthTemps[0] > 0);
+        boolean northHemisphere = (monthTemps[6] - monthTemps[0] > 2);
+		boolean southHemisphere = (monthTemps[6] - monthTemps[0] < -2);
       
 		// determine if climate has a warm-season or a cool-season precipitation maximum
-        double precipSeasonality = getPrecipSeasonIndex(northHemisphere, monthPrecip, precip);
+        double precipSeasonality = getPrecipSeasonIndex(northHemisphere, southHemisphere, monthPrecip, precip);
 		// use the above double value to calculate seasonality
         double precipIndex = getAridityThreshold(aveTemp, precipSeasonality);
 		// check if wettest month during warm-season
@@ -72,10 +73,8 @@ public class MyClimateClassif {
     public static double getMaxPrecipMonthTemp(double[] temperature, double[] precip) {
         double maxPrecip = precip[0];
         double selectTemp = temperature[0];
-        for (int i = 1; i < months; i++)
-        {
-           if (precip[i] > maxPrecip)
-           {
+        for (int i = 1; i < months; i++) {
+           if (precip[i] > maxPrecip) {
                 maxPrecip = precip[i];
                 selectTemp = temperature[i];
             }
@@ -113,20 +112,59 @@ public class MyClimateClassif {
 		}     
 		return selectTemp;
    }
+
+
+   // helper method of sorts for getPrecipSeasonIndex for tropical climates with no seasonal temperature difference 
+   public static double getPrecipVariance(double[] prec, double precSum) {
+	   		double[] vals = new double[months];
+
+			// get the sum of the 6-month precipitation beginning with the selected month
+			for (int j = 0; j < months; j++) {
+				vals[j] = 0.0;
+				vals[j] += prec[j];
+				vals[j] += prec[(j+1) % months];
+				vals[j] += prec[(j+2) % months];
+				vals[j] += prec[(j+3) % months];
+				vals[j] += prec[(j+4) % months];
+				vals[j] += prec[(j+5) % months];
+			}
+			
+			// get max and min values of vals. Return the value of (max - min)/precSum - this should be between 0.0 and 1.0 
+			double maxv = prec[0];
+			double minv = prec[0];
+			for (int i = 1; i < months; i++) {
+			   	if (prec[i] > maxv) 
+					maxv = prec[i];
+				if (prec[i] < minv)
+					minv = prec[i];
+			}
+			return (maxv-minv)/precSum;
+   }
    
 	// calculate seasonality of monthly precipitation relative to the warmer half of the year
-	public static double getPrecipSeasonIndex(boolean julySummer, double[] precip, double precipSum) {
+	// if both booleans are false, then the climate is super-tropical and it makes no sense to speak of a warmer half of the year
+	public static double getPrecipSeasonIndex(boolean julySummer, boolean janSummer, double[] precip, double precipSum) {
 		double warmSeasonSum = 0.0;
 		if (julySummer){
 			for (int i = 3; i < 9; i++)
 				warmSeasonSum += precip[i];
 		}
-		else {
+		else if (janSummer) {
 			warmSeasonSum = precipSum;
 			for (int i = 3; i < 9; i++)
 				warmSeasonSum -= precip[i];
 		}
+
+		// Case: no warm season- just measure stdev of precipitation?
+		// compare difference between max 6-month precip sum and min 6-month precip sum
+		else {
+			double s_val = getPrecipVariance(precip, precipSum);
+			if (s_val < 0.8)
+				return (280.0-140.0)/0.8*s_val + 140.0;
+			return 280.0;
+		}
       
+		// Case: warm season, we actually need to measure precipitation in warmer half of year
 		if (warmSeasonSum/precipSum <= 0.1)
 			return 0.0;
 		else if (warmSeasonSum/precipSum < 0.9)
@@ -159,18 +197,16 @@ public class MyClimateClassif {
 		if (isMax) {
 			double maxTemp = monthVals[0];
 			for (int i = 0; i < months; i++) {
-				if (monthVals[i] > maxTemp) {
+				if (monthVals[i] > maxTemp) 
 					maxTemp = monthVals[i];
-				}	
 			}
 			return maxTemp;
 		}
 		else {
 			double minTemp = monthVals[0];
 			for (int i = 0; i < months; i++) {
-				if (monthVals[i] < minTemp) {
+				if (monthVals[i] < minTemp) 
 					minTemp = monthVals[i];
-				}
 			}
 			return minTemp;
 		}
@@ -197,9 +233,8 @@ public class MyClimateClassif {
     // find month in which the min or max value occurs
 	public static int returnMonthNum(double[] monthVals, double val) {
 		for (int i = 0; i < months; i++) {
-			if (monthVals[i] == val) {
+			if (monthVals[i] == val) 
 				return i;
-		  	}
 		}
 		return -1;
 	}
@@ -262,8 +297,8 @@ public class MyClimateClassif {
 		else if (getMonthNum(monthTemps, 10.0, true) > 3) { // Non-Tropical/non-Polar Climates
 			if (minTemp > 10.0) {
 				first = "B"; // Subtropical climate- all months above 10.0 C
-			if (getMonthNum(monthTemps, 32.0, true) > 3) 
-				xtrm = true;
+				if (getMonthNum(monthTemps, 32.0, true) > 3) 
+					xtrm = true;
 			}
 			else if (minTemp >= -3.0) {
 				first = "C"; // Temperate ("mild-winter") climate
@@ -361,58 +396,55 @@ public class MyClimateClassif {
 			break;
 			case "OT.": name = "Polar/Alpine";
 			break;
-			case "OF.": name = "Polar/Alpine";
+			case "OF.": name = "Polar/Alpine Ice Cap";
 			break;
 			case "E": name = "Subpolar/Subalpine";
 			break;
 			case "D": name = "Continental";
 				if (b != "Z" && b != "R") {
-					if (b == "w") {
+					if (b == "w") 
 						name += " monsoon";
-				} else {
-					name += " humid";
-				} 
-				switch(c) {
-					case "a": name += " Type I";
-					break;
-					case "b": name += " Type II";
-					break;
-				}
+					else 
+						name += " humid"; 
+				
+					switch(c) {
+						case "a": name += " Type I";
+						break;
+						case "b": name += " Type II";
+						break;
+					}
 				}
 			break;
 			case "C": name = "Temperate";
-				if (b == "s" && c == "a") {
+				if (b == "s" && c == "a") 
 					name = "Mediterranean";
-				} else if (b == "f" && c == "b") {
+				else if (b == "f" && c == "b") 
 					name += " oceanic";
-				} else if (b == "w") {
+				else if (b == "w") 
 					name += " monsoon";
-				} else if (b != "Z" && b != "R") {
+				else if (b != "Z" && b != "R") 
 					name += " humid";
-				}  
 			break;
 			case "B": name = "Subtropical";
-				if (b == "s") {
+				if (b == "s") 
 					name = "Mediterranean";
-				} else if (b == "f" && c == "b") {
+				else if (b == "f" && c == "b") 
 					name += " oceanic";
-				} else if (b == "w") {
+				else if (b == "w") 
 					name += " monsoon";
-				} else if (b != "Z" && b != "R") {
-					name += " humid";
-				}   
+				else if (b != "Z" && b != "R")
+					name += " humid"; 
 			break;
 			case "A": name = "Tropical";
 				if (c == "e" || c == "E") {
 					name = "Equatorial";
 				}
-				if (b == "f") {
+				if (b == "f") 
 					name += " rainforest";
-				} else if (b == "m") {
+				else if (b == "m")
 					name += " monsoon";
-				} else if (b == "w" || b == "s") {
+				else if (b == "w" || b == "s")
 					name += " savannah";
-				}
 			break;
 		}
       

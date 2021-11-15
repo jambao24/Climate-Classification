@@ -252,56 +252,48 @@ public class cherrychips666ClimateClassif {
         // Polar
 	    if (HBioTemp <= 1.5) 
 			classif = "7";
-        // Subpolar + Boreal + Cool Temperate
-        else if (HBioTemp <= 12.0) {
+        // Subpolar 
+        else if (HBioTemp <= 3.0) {
             double tSeasonality = tempCont(monthTemps);
-            // Subpolar
-            if (HBioTemp <= 3.0) {
-                if (tSeasonality > 650)
-                    classif = "6c";
-                else if (tSeasonality > 300)
-                    classif = "6o";
-                else
-                    classif = "6h";
-            }
-            // Boreal + Cool Temperate 
-            else {
-                double annPET = findEvapo(HBioTemp);
-                double annWetness = getIndex(annPET, precip);
-                
-                // Boreal
-                if (HBioTemp <= 6.0 && annWetness < 0.7) 
-                    classif = "5d";
-                else if (HBioTemp <= 6.0 && tSeasonality > 1650)
-                    classif = "5x";
-                else if (HBioTemp <= 6.0 && tSeasonality > 650)
-                    classif = "5c";
-                else if (HBioTemp <= 6.0 && tSeasonality > 300)
-                    classif = "5o";
-                else if (HBioTemp <= 6.0)
-                    classif = "5h";
-                // Cool Temperate
-                else if (annWetness < 0.25)
-                    classif = "4d";
-                else if (annWetness < 0.7)
-                    classif = "4s";
-                else if (tSeasonality > 650)
-                    classif = "4c";
-                else if (tSeasonality > 300)
-                    classif = "4o";
-                else // if (tSeasonality < 300 && HBioTemp <= 12.0)
-                    classif = "4h";
-            } 
+            if (tSeasonality > 650)
+                classif = "6c";
+            else if (tSeasonality > 300)
+                classif = "6o";
+            else
+                classif = "6h";
         }
-        // Warm Temperate
+        // Boreal + Cool Temperate + Warm Temperate
         else if (HBioTemp <= 18.0) {
             double tSeasonality = tempCont(monthTemps);
             double annPET = findEvapo(HBioTemp);
             double annWetness = getIndex(annPET, precip);
             double coldWetness = winterWetness(monthTemps, monthPrecip);
             double hotWetness = summerWetness(monthTemps, monthPrecip);
-
-            if (annWetness < 0.25)
+            
+            // Boreal
+            if (HBioTemp <= 6.0 && annWetness < 0.7 && coldWetness < 1 && hotWetness < 1) 
+                classif = "5d";
+            else if (HBioTemp <= 6.0 && tSeasonality > 1650)
+                classif = "5x";
+            else if (HBioTemp <= 6.0 && tSeasonality > 650)
+                classif = "5c";
+            else if (HBioTemp <= 6.0 && tSeasonality > 300)
+                classif = "5o";
+            else if (HBioTemp <= 6.0)
+                classif = "5h";
+            // Cool Temperate
+            else if (HBioTemp <= 12.0 && annWetness < 0.25)
+                classif = "4d";
+            else if (HBioTemp <= 12.0 && annWetness < 0.7 && coldWetness < 1 && hotWetness < 1)
+                classif = "4s";
+            else if (HBioTemp <= 12.0 && tSeasonality > 650)
+                classif = "4c";
+            else if (HBioTemp <= 12.0 && tSeasonality > 300)
+                classif = "4o";
+            else if (HBioTemp <= 12.0 && tSeasonality < 300)
+                classif = "4h";
+            // Warm Temperate
+            else if (annWetness < 0.25)
                 classif = "3d";
             else if (annWetness < 0.7 && coldWetness < 1 && hotWetness < 1)
                 classif = "3s";
