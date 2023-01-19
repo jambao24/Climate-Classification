@@ -5,6 +5,7 @@ import java.util.*;
 // Source: http://www.city-data.com/forum/weather/3030392-psyche_da_mike24s-climate-classification-system.html
 // New source: http://www.city-data.com/forum/weather/3307954-psyche_da_mike24s-climate-classification-system-v2-0-a.html
 // Based on a mashup of Köppen and Trewartha with a more nuanced precipitation threshold
+// All temperature and precipitation units are in metric!
 
 public class MyClimateClassif2 {
 	public static int months = 12;
@@ -59,6 +60,8 @@ public class MyClimateClassif2 {
 
 
     // construct a double array of entered double values from the scanner input
+	// String c = name of location or station
+	// Scanner console = Scanner object being passed in
 	public static double[] inputData(Scanner console, String c) {
 		System.out.println("Please enter in the monthly data for " + c + ". ");
 		double[] newArray = new double[months];
@@ -72,6 +75,8 @@ public class MyClimateClassif2 {
 	}
    
     // method returns the temperature for the month with greatest precipitation
+	// double[] temperature = array of average temps for 12 months
+	// double[] precip = array of average precip for 12 months
     public static double getMaxPrecipMonthTemp(double[] temperature, double[] precip) {
         double maxPrecip = precip[0];
         double selectTemp = temperature[0];
@@ -86,6 +91,8 @@ public class MyClimateClassif2 {
    
     // method returns the temperature for the month with least precipitation
     // if there are multiple months with 0 precipitation, the temperatures of those months are averaged
+	// double[] temperature = array of average temps for 12 months
+	// double[] precip = array of average precip for 12 months
     public static double getMinPrecipMonthTemp(double[] temperature, double[] precip) {
         double minPrecip = precip[0];
         double selectTemp = temperature[0];
@@ -116,8 +123,10 @@ public class MyClimateClassif2 {
    }
 
 
-   // helper method of sorts for getPrecipSeasonIndex for tropical climates with no seasonal temperature difference 
-   public static double getPrecipVariance(double[] prec, double precSum) {
+	// helper method of sorts for getPrecipSeasonIndex for tropical climates with no seasonal temperature difference 
+	// double precSum = average annual rainfall
+	// double[] prec = array of average precip for 12 months
+	public static double getPrecipVariance(double[] prec, double precSum) {
 	   		double[] vals = new double[months];
 
 			// get the sum of the 6-month precipitation beginning with the selected month
@@ -145,6 +154,10 @@ public class MyClimateClassif2 {
    
 	// calculate seasonality of monthly precipitation relative to the warmer half of the year
 	// if both booleans are false, then the climate is super-tropical and it makes no sense to speak of a warmer half of the year
+	// boolean julySummer = is July a summer month
+	// boolean janSummer = is January a summer month
+	// double[] precip = array of average precip for 12 months
+	// double precipSum = average annual rainfall
 	public static double getPrecipSeasonIndex(boolean julySummer, boolean janSummer, double[] precip, double precipSum) {
 		double warmSeasonSum = 0.0;
 		if (julySummer){
@@ -176,6 +189,8 @@ public class MyClimateClassif2 {
    
    
 	// get the aridity threshold for precipitation
+	// double aveTemp = average annual temperature
+	// double seasonality = seasonality index value (ranges from 0.0 to 1.0)
 	public static double getAridityThreshold(double aveTemp, double seasonality) {
 		double baseline = 0.0;
 		if (aveTemp < 10)
@@ -193,6 +208,8 @@ public class MyClimateClassif2 {
 	}
    
 	// find max and min average monthly temperatures/precipitation
+	// double[]	monthVals = array of 12 values for each month's average
+	// boolean isMax = are we searching for max or min
 	public static double findVal(double[] monthVals, boolean isMax)
 	{
 		if (isMax) {
@@ -214,6 +231,9 @@ public class MyClimateClassif2 {
 	}
    
 	// find number of months where the temperature is above or below a certain threshold
+	// double[]	monthTemps = array of 12 values for each month's average temp
+	// double val = numerical threshold
+	// boolean isGreater = above or below
 	public static int getMonthNum(double[] monthTemps, double val, boolean isGreater) {
 		int monthsNum = 0;
 		if (isGreater) {
@@ -232,6 +252,8 @@ public class MyClimateClassif2 {
 	}
    
     // find month in which the min or max value occurs
+	// double[]	monthVals = array of 12 values for each month's average
+	// double val = numerical threshold
 	public static int returnMonthNum(double[] monthVals, double val) {
 		for (int i = 0; i < months; i++) {
 			if (monthVals[i] == val) 
@@ -242,6 +264,7 @@ public class MyClimateClassif2 {
 
 	
 	// find the Holdridge average biotemperature (average of the highest 6 values in monthTemps)
+	// double[]	monthTemps = array of 12 values for each month's average temp
 	public static double findWarmHoldridgeTemp(double[] monthTemps) {
 		double[] warmTemps = new double [months];
 		for (int k = 0; k < months; k++) {
@@ -259,6 +282,15 @@ public class MyClimateClassif2 {
    
 	// climate classification method based on the Koppen-Geiger and Trewartha classification schemes
 	// also computes average Holdridge biotemperature for the warmest 6 months
+	// double[]	monthTemps = array of 12 values for each month's average temp
+	// double aveTemp = annual average temperature
+	// double[]	monthPrecip = array of 12 values for each month's average precipitation
+	// double precip = annual average precipitation
+	// double precipIndex = precipitation threshold for determining aridity
+	// boolean maxPWarm = does the warmest month have a precip max
+	// boolean minPWarm = does the warmest month have a precip min
+	// boolean northHemisphere = is July noticeably warmer than January
+	// double WarmTempp = average temp of warmest 6 months
 	public static String[] climateClass(double[] monthTemps, double aveTemp, double[] monthPrecip, double precip, 
 	double precipIndex, boolean maxPWarm, boolean minPWarm, boolean northHemisphere, double WarmTempp) {
 		String[] output = new String[2];
@@ -324,7 +356,7 @@ public class MyClimateClassif2 {
 			//}
 			else if (minTemp > 10.0) 
 				first = "C"; // Warm Temperate climate, "low-latitude" subtype
-			else if (WarmTempp > 18.0) 
+			else if (WarmTempp > 18.0 && minTemp > -3.0) 
 				first = "C"; // Warm Temperate climate, "continental" subtype
 			else 
 				first = "D"; // Mid-Latitude climate
@@ -396,6 +428,9 @@ public class MyClimateClassif2 {
 
    
 	// assign a string name to the three-letter classification
+	// String a = first letter of classification
+	// String b = second letter of classification
+	// String c = third letter of classification
 	public static String nameClimate(String a, String b, String c) {
 		String name = "";
       
@@ -427,7 +462,7 @@ public class MyClimateClassif2 {
 			break;
 			case "C": name = "Warm Temperate";
 				if (b == "s" && c == "a") 
-					name = "Mediterranean";
+					name += "Mediterranean";
 				else if (b == "f" && c == "b") 
 					name += " oceanic";
 				else if (b == "w") 
@@ -437,7 +472,7 @@ public class MyClimateClassif2 {
 			break;
 			case "B": name = "Subtropical";
 				if (b == "s") 
-					name = "Mediterranean";
+					name += "Mediterranean";
 				else if (b == "f" && c == "b") 
 					name += " oceanic";
 				else if (b == "w") 
