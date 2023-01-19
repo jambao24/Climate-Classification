@@ -28,8 +28,9 @@ public class MyClimateClassif2 {
         aveTemp = aveTemp/months;
       
 		// check which of July/January is warmer (true = Jul, false = Jan)
-        boolean northHemisphere = (monthTemps[6] - monthTemps[0] > 2);
-		boolean southHemisphere = (monthTemps[6] - monthTemps[0] < -2);
+		// Using a threshold of 3°C for both booleans to ensure Lagos (Northern Hemisphere tropics) isn't classified as "Southern Hemisphere"
+        boolean northHemisphere = (monthTemps[6] - monthTemps[0] > 3);
+		boolean southHemisphere = (monthTemps[6] - monthTemps[0] < -3);
       
 		// determine if climate has a warm-season or a cool-season precipitation maximum
         double precipSeasonality = getPrecipSeasonIndex(northHemisphere, southHemisphere, monthPrecip, precip);
@@ -39,7 +40,7 @@ public class MyClimateClassif2 {
         boolean maxPrecipWarm = (getMaxPrecipMonthTemp(monthTemps, monthPrecip) >= aveTemp);
 		// check if driest month during warm-season
         boolean minPrecipWarm = (getMinPrecipMonthTemp(monthTemps, monthPrecip) >= aveTemp);
-		// calculate Holdrige biotemperature for the warmest 6 months [not used for classification]
+		// calculate Holdrige biotemperature for the warmest 6 months [now used for classification in new version]
 		double WarmTemp = findWarmHoldridgeTemp(monthTemps);
       
         System.out.println("Total Annual Precipitation: " + precip + " mm");
@@ -316,14 +317,22 @@ public class MyClimateClassif2 {
 				if (getMonthNum(monthTemps, 32.0, true) > 3) 
 					xtrm = true;
 			}
-			else if (minTemp >= -3.0) {
-				first = "C"; // Temperate ("mild-winter") climate
-			} else {
-				first = "D"; // Continental ("snowy-winter") climate
-			}
+			//else if (minTemp >= -3.0) {
+			//	first = "C"; // Temperate ("mild-winter") climate
+			//} else {
+			//	first = "D"; // Continental ("snowy-winter") climate
+			//}
+			else if (minTemp > 10.0) 
+				first = "C"; // Warm Temperate climate, "low-latitude" subtype
+			else if (WarmTempp > 18.0) 
+				first = "C"; // Warm Temperate climate, "continental" subtype
+			else 
+				first = "D"; // Mid-Latitude climate
 			
 			// Temperature classification
-			if (maxTemp > 22.5) 
+			if (first == "D" && minTemp >= -3.0)
+				third = "m"; // mild mid-latitude
+			else if (maxTemp > 22.5) 
 				third = "a"; // hot-summer
 			else 
 				third = "b"; // warm-summer
@@ -348,7 +357,7 @@ public class MyClimateClassif2 {
 			} else if (minTemp  <= 6.0) {
 				third = "c"; // "temperate (mild-winter")
 			} else {
-				third = "b"; // "subtropical/low-latitude"
+				third = "b"; // "low-latitude"
 			}
 			// Precipitation classification
 			if (second.length() == 0) {
@@ -401,7 +410,7 @@ public class MyClimateClassif2 {
 			break;
 			case "E": name = "Subpolar/Subalpine";
 			break;
-			case "D": name = "Continental";
+			case "D": name = "Mid-Latitude";
 				if (b != "Z" && b != "R") {
 					if (b == "w") 
 						name += " monsoon";
@@ -416,7 +425,7 @@ public class MyClimateClassif2 {
 					}
 				}
 			break;
-			case "C": name = "Temperate";
+			case "C": name = "Warm Temperate";
 				if (b == "s" && c == "a") 
 					name = "Mediterranean";
 				else if (b == "f" && c == "b") 
